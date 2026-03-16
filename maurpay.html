@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaurPay — The Future of Money is Nigerian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Jost:wght@300;400;500;600&family=Syne+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #060608;
+    --surface: #0D0D14;
+    --surface2: #13131E;
+    --gold: #E8B84B;
+    --gold-dim: #b8902e;
+    --gold-glow: rgba(232,184,75,0.15);
+    --teal: #00C9A7;
+    --teal-dim: rgba(0,201,167,0.12);
+    --white: #F4F0E8;
+    --muted: #888898;
+    --border: rgba(232,184,75,0.12);
+    --border-light: rgba(255,255,255,0.06);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(232,184,75,0.5);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.15s ease-out, opacity 0.3s;
+  }
+  body:hover .cursor { opacity: 1; }
+
+  /* ── CANVAS BACKGROUND ── */
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── NOISE GRAIN ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 0;
+    transition: all 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(6,6,8,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+  }
+  nav .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+  .logo span { color: var(--gold); }
+
+  .nav-right { display: flex; align-items: center; gap: 32px; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--white); }
+
+  .btn-gold {
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 12px 28px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: all 0.3s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .btn-gold:hover {
+    background: #f5c84f;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(232,184,75,0.35);
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 60px;
+    padding: 140px 0 80px;
+    position: relative;
+    overflow: visible;
+  }
+  .hero-text { position: relative; z-index: 3; }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    background: var(--gold-glow);
+    padding: 8px 18px;
+    margin-bottom: 32px;
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.6rem, 5vw, 5.2rem);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.4s forwards;
+  }
+  .hero-title .line2 {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(232,184,75,0.5);
+  }
+  .hero-title .highlight {
+    background: linear-gradient(135deg, var(--gold) 0%, #f5c84f 50%, var(--teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 420px;
+    line-height: 1.75;
+    margin-bottom: 40px;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.6s forwards;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.8s forwards;
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--border-light);
+    padding: 13px 28px;
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: none;
+    transition: all 0.3s;
+    letter-spacing: 0.02em;
+  }
+  .btn-outline:hover {
+    border-color: rgba(232,184,75,0.4);
+    color: var(--gold);
+    background: var(--gold-glow);
+  }
+
+  .hero-scroll-hint {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    margin-top: 60px;
+    opacity: 0;
+    animation: fadeUp 1s 1.2s forwards;
+  }
+  .scroll-line {
+    width: 40px; height: 1px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-line::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: var(--gold);
+    animation: scanline 2s 1.5s infinite;
+  }
+  @keyframes scanline { to { left: 200%; } }
+
+  /* ── DEVICE SCENE ── */
+  .hero-devices {
+    position: relative;
+    width: 100%;
+    height: 520px;
+    opacity: 0;
+    animation: fadeUp 1s 1s forwards;
+  }
+
+  /* LAPTOP */
+  .device-laptop {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 2;
+  }
+  .laptop-lid {
+    background: #1a1a28;
+    border: 2px solid #2e2e42;
+    border-radius: 10px 10px 0 0;
+    padding: 10px;
+    box-shadow: 0 -4px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    position: relative;
+  }
+  .laptop-lid::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 6px;
+    background: #333;
+    border-radius: 50%;
+  }
+  .laptop-screen {
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 16/10;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+  }
+  .laptop-base {
+    background: linear-gradient(180deg, #222234 0%, #1a1a28 100%);
+    height: 14px;
+    border-radius: 0 0 6px 6px;
+    border: 2px solid #2e2e42;
+    border-top: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .laptop-base::after {
+    content: '';
+    width: 50px; height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+  }
+  .laptop-foot {
+    height: 6px;
+    background: #111120;
+    border-radius: 0 0 8px 8px;
+    margin: 0 20px;
+    border: 1px solid #1e1e30;
+    border-top: none;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  }
+
+  /* PHONE */
+  .device-phone {
+    position: absolute;
+    top: 0; right: 0;
+    width: 120px;
+    z-index: 4;
+    filter: drop-shadow(-8px 16px 30px rgba(0,0,0,0.5));
+    animation: floatPhone 5s ease-in-out infinite;
+  }
+  @keyframes floatPhone {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .phone-shell {
+    background: #1c1c2c;
+    border: 2px solid #2e2e42;
+    border-radius: 18px;
+    padding: 8px 5px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);
+  }
+  .phone-notch {
+    width: 32px; height: 5px;
+    background: #111;
+    border-radius: 3px;
+    margin: 0 auto 6px;
+  }
+  .phone-screen {
+    background: var(--surface);
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 9/16;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .phone-home {
+    width: 24px; height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin: 5px auto 0;
+  }
+
+  /* TABLET */
+  .device-tablet {
+    position: absolute;
+    bottom: 10px; left: -30px;
+    width: 200px;
+    z-index: 3;
+    filter: drop-shadow(8px 12px 24px rgba(0,0,0,0.5));
+    animation: floatTablet 6s ease-in-out infinite;
+    animation-delay: 1.5s;
+  }
+  @keyframes floatTablet {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-8px) rotate(-2deg); }
+  }
+  .tablet-shell {
+    background: #1c1c2c;
+    border: 2px solid #2e2e42;
+    border-radius: 12px;
+    padding: 6px 5px;
+    position: relative;
+    transform: rotate(-2deg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);
+  }
+  .tablet-camera {
+    width: 4px; height: 4px;
+    background: #222;
+    border-radius: 50%;
+    margin: 0 auto 4px;
+  }
+  .tablet-screen {
+    background: var(--surface);
+    border-radius: 7px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* ── SCREEN CONTENT: LAPTOP DASHBOARD ── */
+  .ls { font-family: 'Syne', sans-serif; }
+  .ls-topbar {
+    background: var(--surface2);
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .ls-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.55rem; color: var(--white); }
+  .ls-logo span { color: var(--gold); }
+  .ls-nav { display: flex; gap: 8px; }
+  .ls-nav-dot { width: 30px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; }
+  .ls-nav-dot.active { background: var(--gold); opacity: 0.6; }
+  .ls-avatar { width: 14px; height: 14px; border-radius: 50%; background: var(--gold); opacity: 0.6; }
+  .ls-body { padding: 8px 10px; }
+  .ls-greeting { font-size: 0.38rem; color: var(--muted); margin-bottom: 1px; }
+  .ls-name { font-size: 0.5rem; font-weight: 700; color: var(--white); margin-bottom: 6px; font-family: 'Syne', sans-serif; }
+  .ls-wallet-card {
+    background: linear-gradient(135deg, #1e1e32, #2a2a44);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 9px;
+    margin-bottom: 7px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ls-wallet-card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 20%; right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .ls-wlabel { font-size: 0.32rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
+  .ls-wbal { font-size: 0.8rem; font-weight: 800; color: var(--white); font-family: 'Syne', sans-serif; letter-spacing: -0.03em; }
+  .ls-wbal span { font-size: 0.4rem; color: var(--teal); margin-left: 3px; }
+  .ls-services { display: grid; grid-template-columns: repeat(4,1fr); gap: 4px; margin-bottom: 7px; }
+  .ls-svc { background: var(--surface2); border-radius: 4px; padding: 4px 2px; text-align: center; border: 1px solid var(--border-light); }
+  .ls-svc-i { font-size: 0.55rem; display: block; }
+  .ls-svc-l { font-size: 0.25rem; color: var(--muted); display: block; margin-top: 1px; }
+  .ls-section-title { font-size: 0.33rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+  .ls-txrow { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .ls-txrow:last-child { border-bottom: none; }
+  .ls-txi { display: flex; align-items: center; gap: 4px; }
+  .ls-txdot { width: 14px; height: 14px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: center; font-size: 0.4rem; }
+  .ls-txname { font-size: 0.3rem; color: var(--white); }
+  .ls-txtime { font-size: 0.25rem; color: var(--muted); }
+  .ls-txamt { font-size: 0.33rem; font-weight: 700; }
+
+  /* ── SCREEN CONTENT: PHONE DATA PAGE ── */
+  .ps { }
+  .ps-topbar { background: var(--gold); padding: 5px 7px; display: flex; align-items: center; gap: 4px; }
+  .ps-back { width: 6px; height: 6px; border-left: 1.5px solid var(--black); border-bottom: 1.5px solid var(--black); transform: rotate(45deg); }
+  .ps-title { font-size: 0.38rem; font-weight: 800; color: var(--black); font-family: 'Syne', sans-serif; }
+  .ps-body { padding: 6px; }
+  .ps-label { font-size: 0.28rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .ps-nets { display: grid; grid-template-columns: repeat(4,1fr); gap: 3px; margin-bottom: 7px; }
+  .ps-net { background: var(--surface2); border: 1px solid var(--border-light); border-radius: 4px; padding: 4px 2px; text-align: center; font-size: 0.3rem; color: var(--muted); }
+  .ps-net.active { border-color: rgba(232,184,75,0.4); background: var(--gold-glow); color: var(--gold); }
+  .ps-net-icon { font-size: 0.5rem; display: block; margin-bottom: 1px; }
+  .ps-bundle { display: flex; align-items: center; justify-content: space-between; background: var(--surface2); border: 1px solid var(--border-light); border-radius: 4px; padding: 4px 6px; margin-bottom: 3px; }
+  .ps-bundle.hot { border-color: rgba(232,184,75,0.3); background: var(--gold-glow); }
+  .ps-bsize { font-size: 0.38rem; font-weight: 700; color: var(--white); font-family: 'Syne', sans-serif; }
+  .ps-bdetail { font-size: 0.25rem; color: var(--muted); }
+  .ps-bprice { font-size: 0.38rem; font-weight: 700; color: var(--gold); font-family: 'Syne', sans-serif; }
+  .ps-btn { background: var(--gold); width: 100%; padding: 5px; text-align: center; border-radius: 4px; margin-top: 6px; font-size: 0.3rem; font-weight: 700; color: var(--black); font-family: 'Syne', sans-serif; letter-spacing: 0.06em; }
+  .ps-hot-tag { font-size: 0.22rem; background: var(--gold); color: var(--black); padding: 1px 3px; border-radius: 2px; font-weight: 700; }
+
+  /* ── SCREEN CONTENT: TABLET CROWDFUNDING ── */
+  .ts { }
+  .ts-topbar { background: var(--surface2); padding: 4px 7px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-light); }
+  .ts-title { font-size: 0.35rem; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--white); }
+  .ts-btn { background: var(--gold); padding: 2px 5px; border-radius: 3px; font-size: 0.25rem; font-weight: 700; color: var(--black); font-family: 'Syne', sans-serif; }
+  .ts-body { padding: 5px 6px; }
+  .ts-cats { display: flex; gap: 3px; margin-bottom: 5px; overflow: hidden; }
+  .ts-cat { font-size: 0.24rem; padding: 1.5px 4px; border: 1px solid var(--border-light); border-radius: 10px; color: var(--muted); white-space: nowrap; }
+  .ts-cat.active { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+  .ts-card { background: var(--surface2); border: 1px solid var(--border-light); border-radius: 4px; margin-bottom: 4px; overflow: hidden; }
+  .ts-card-img { height: 22px; background: linear-gradient(135deg, #1e2e3a, #1a2a1a); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+  .ts-card-body { padding: 3px 4px; }
+  .ts-card-title { font-size: 0.3rem; font-weight: 700; color: var(--white); font-family: 'Syne', sans-serif; margin-bottom: 1px; }
+  .ts-card-sub { font-size: 0.24rem; color: var(--muted); margin-bottom: 3px; }
+  .ts-progress-bar { height: 2px; background: var(--border-light); border-radius: 1px; margin-bottom: 2px; overflow: hidden; }
+  .ts-progress-fill { height: 100%; border-radius: 1px; }
+  .ts-card-footer { display: flex; justify-content: space-between; align-items: center; }
+  .ts-raised { font-size: 0.25rem; color: var(--teal); font-weight: 700; }
+  .ts-target { font-size: 0.22rem; color: var(--muted); }
+
+  .floating-pill {
+    position: absolute;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 5px 12px;
+    font-size: 0.66rem;
+    font-family: 'Syne Mono', monospace;
+    color: var(--muted);
+    white-space: nowrap;
+    z-index: 10;
+  }
+  .pill-1 { top: 20px; left: -10px; animation: floatPill 4s ease-in-out infinite; }
+  .pill-2 { bottom: 50px; right: -10px; animation: floatPill 5s ease-in-out 2s infinite; }
+  @keyframes floatPill {
+    0%,100% { transform: translateY(0px); }
+    50% { transform: translateY(-7px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 0;
+    overflow: hidden;
+    background: linear-gradient(90deg, var(--black) 0%, transparent 5%, transparent 95%, var(--black) 100%);
+    position: relative;
+    z-index: 2;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 0;
+    animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+  .marquee-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 40px;
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .marquee-item span { color: var(--gold); font-size: 0.6rem; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+
+  /* ── STATS ── */
+  #stats {
+    padding: 100px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .stats-label {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 60px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s;
+  }
+  .stats-label.visible { opacity: 1; transform: none; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .stat-cell {
+    background: var(--black);
+    padding: 48px 36px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s;
+  }
+  .stat-cell.visible { opacity: 1; transform: none; }
+  .stat-cell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--gold-glow) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .stat-cell:hover::before { opacity: 1; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 3rem;
+    letter-spacing: -0.04em;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-num .suffix { color: var(--gold); }
+  .stat-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+  .stat-source {
+    font-size: 0.62rem;
+    color: rgba(136,136,152,0.5);
+    font-family: 'Syne Mono', monospace;
+    margin-top: 12px;
+  }
+
+  /* ── FEATURES ── */
+  #features {
+    padding: 120px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .section-eyebrow {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0; transform: translateY(20px); transition: all 0.6s;
+  }
+  .section-eyebrow.visible { opacity: 1; transform: none; }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 4vw, 3.6rem);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 60px;
+    opacity: 0; transform: translateY(20px); transition: all 0.6s 0.1s;
+  }
+  .section-title.visible { opacity: 1; transform: none; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .feature-card {
+    background: var(--black);
+    padding: 52px 44px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0; transform: translateY(30px); transition: all 0.6s;
+  }
+  .feature-card.visible { opacity: 1; transform: none; }
+  .feature-card:hover { background: var(--surface); }
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+  }
+  .feature-card:hover::after { transform: scaleX(1); }
+
+  .feature-icon {
+    width: 52px; height: 52px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 28px;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    transition: all 0.3s;
+  }
+  .feature-card:hover .feature-icon {
+    background: var(--gold-glow);
+    border-color: rgba(232,184,75,0.3);
+  }
+  .feature-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .feature-desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.75;
+    font-weight: 300;
+  }
+  .feature-tag {
+    display: inline-block;
+    margin-top: 20px;
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    text-transform: uppercase;
+  }
+
+  /* ── INVEST ── */
+  #invest {
+    padding: 120px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .invest-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .invest-text .section-eyebrow { margin-bottom: 16px; }
+  .invest-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 24px;
+    opacity: 0; transform: translateY(20px); transition: all 0.6s 0.2s;
+  }
+  .invest-title.visible { opacity: 1; transform: none; }
+  .invest-body {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    font-weight: 300;
+    margin-bottom: 40px;
+    opacity: 0; transform: translateY(20px); transition: all 0.6s 0.3s;
+  }
+  .invest-body.visible { opacity: 1; transform: none; }
+
+  .pillars {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    opacity: 0; transform: translateY(30px); transition: all 0.6s 0.2s;
+  }
+  .pillars.visible { opacity: 1; transform: none; }
+  .pillar {
+    background: var(--black);
+    padding: 24px 28px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    transition: background 0.3s;
+  }
+  .pillar:hover { background: var(--surface); }
+  .pillar-num {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+    padding-top: 3px;
+    flex-shrink: 0;
+  }
+  .pillar-content h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+  .pillar-content p { font-size: 0.8rem; color: var(--muted); font-weight: 300; line-height: 1.6; }
+
+  /* ── TESTIMONIAL / VISION ── */
+  #vision {
+    padding: 120px 0;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+  .vision-quote {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3vw, 2.6rem);
+    letter-spacing: -0.03em;
+    line-height: 1.3;
+    max-width: 820px;
+    margin: 0 auto 32px;
+    color: var(--white);
+    opacity: 0; transform: translateY(30px); transition: all 0.8s;
+  }
+  .vision-quote.visible { opacity: 1; transform: none; }
+  .vision-quote .em { color: var(--gold); }
+  .vision-author {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    opacity: 0; transition: all 0.8s 0.2s;
+  }
+  .vision-author.visible { opacity: 1; }
+  .vision-divider {
+    width: 80px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 40px auto;
+  }
+
+  /* ── CTA ── */
+  #cta {
+    padding: 120px 0 160px;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+  .cta-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(232,184,75,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-eyebrow {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0; transform: translateY(20px); transition: all 0.6s;
+  }
+  .cta-eyebrow.visible { opacity: 1; transform: none; }
+  .cta-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    letter-spacing: -0.04em;
+    line-height: 1.0;
+    margin-bottom: 24px;
+    opacity: 0; transform: translateY(20px); transition: all 0.6s 0.1s;
+  }
+  .cta-title.visible { opacity: 1; transform: none; }
+  .cta-sub {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 460px;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+    font-weight: 300;
+    opacity: 0; transform: translateY(20px); transition: all 0.6s 0.2s;
+  }
+  .cta-sub.visible { opacity: 1; transform: none; }
+
+  .waitlist-form {
+    display: flex;
+    gap: 0;
+    max-width: 460px;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+    opacity: 0; transform: translateY(20px); transition: all 0.6s 0.3s;
+  }
+  .waitlist-form.visible { opacity: 1; transform: none; }
+  .waitlist-input {
+    flex: 1;
+    background: var(--surface);
+    border: none;
+    padding: 16px 20px;
+    color: var(--white);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+  }
+  .waitlist-input::placeholder { color: var(--muted); }
+  .waitlist-btn {
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 16px 28px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .waitlist-btn:hover { background: #f5c84f; }
+
+  .trust-line {
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: rgba(136,136,152,0.6);
+    font-family: 'Syne Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-copy { font-size: 0.75rem; color: var(--muted); font-family: 'Syne Mono', monospace; letter-spacing: 0.06em; }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 0.75rem; color: var(--muted); text-decoration: none; transition: color 0.3s; font-family: 'Syne Mono', monospace; letter-spacing: 0.06em; }
+  .footer-links a:hover { color: var(--gold); }
+
+  /* ── POPUP ── */
+  .popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  .popup-overlay.active { opacity: 1; pointer-events: all; }
+  .popup-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    max-width: 480px;
+    width: 90%;
+    padding: 60px 52px;
+    text-align: center;
+    position: relative;
+    transform: translateY(30px) scale(0.97);
+    transition: transform 0.4s;
+  }
+  .popup-overlay.active .popup-box { transform: none; }
+  .popup-box::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 15%; right: 15%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .popup-icon { font-size: 3rem; margin-bottom: 24px; animation: popIn 0.5s 0.3s backwards; }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .popup-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.7rem;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    color: var(--gold);
+  }
+  .popup-body {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 32px;
+    position: fixed;
+  }
+  .popup-body strong { color: var(--white); font-weight: 600; }
+  .popup-close {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 12px 32px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    cursor: none;
+    transition: all 0.3s;
+    letter-spacing: 0.04em;
+    position: fixed;
+  }
+  .popup-close:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
+  .popup-sub {
+    position: static;
+    margin-top: 16px;
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(136,136,152,0.5);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  #hero > .hero-text {
+    padding-left: 40px;
+    max-width: 600px;
+  }
+  #hero > div:last-child {
+    padding-right: 20px;
+  }
+  @media (max-width: 900px) {
+    #hero > .hero-text { padding-left: 20px; max-width: 100%; }
+    #hero > div:last-child { padding-right: 20px; padding-left: 20px; }
+  }
+  .april-banner {
+    position: static;
+    z-index: 10;
+    background: linear-gradient(90deg, var(--gold) 0%, #f5c84f 50%, var(--gold) 100%);
+    color: var(--black);
+    text-align: center;
+    padding: 10px 20px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .april-banner span { opacity: 0.6; margin: 0 16px; font-size: 0.6rem; }
+
+  /* ── STORIES SECTION ── */
+  #stories {
+    padding: 120px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .stories-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .story-card {
+    background: var(--black);
+    padding: 48px 36px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0; transform: translateY(30px); transition: all 0.6s;
+    display: flex; flex-direction: column;
+  }
+  .story-card.visible { opacity: 1; transform: none; }
+  .story-card:hover { background: var(--surface); }
+  .story-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    transform: scaleX(0);
+    transition: transform 0.5s;
+  }
+  .story-card:hover::before { transform: scaleX(1); }
+  .story-avatar {
+    font-size: 2.4rem;
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+  .story-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 3px;
+    letter-spacing: -0.01em;
+  }
+  .story-role {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: 'Syne Mono', monospace;
+    letter-spacing: 0.06em;
+    margin-bottom: 24px;
+  }
+  .story-quote {
+    font-size: 0.92rem;
+    color: var(--muted);
+    line-height: 1.8;
+    font-weight: 300;
+    font-style: italic;
+    flex: 1;
+    border-left: 2px solid var(--border);
+    padding-left: 16px;
+    margin-bottom: 24px;
+  }
+  .story-feature {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--teal);
+    border: 1px solid rgba(0,201,167,0.2);
+    padding: 5px 12px;
+    display: inline-block;
+  }
+  @media (max-width: 900px) {
+    #hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding: 120px 0 60px;
+    }
+    .hero-devices {
+      height: 380px;
+      width: 100%;
+    }
+    .device-phone { width: 90px; right: 10px; }
+    .device-tablet { width: 150px; left: -10px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .features-grid { grid-template-columns: 1fr; }
+    .stories-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .hero-title { font-size: 2.6rem; }
+  }
+  @media (max-width: 600px) {
+    .container { padding: 0 20px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .waitlist-form { flex-direction: column; }
+    .waitlist-btn { width: 100%; padding: 14px; }
+    .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+    .popup-box { padding: 40px 28px; }
+    .hero-devices { height: 300px; }
+    .device-phone { width: 70px; }
+    .device-tablet { width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ── APRIL BANNER ── -->
+<div class="april-banner">
+  🚀 Launching April 2025 <span>◆</span> Nigeria's All-in-One Finance Platform <span>◆</span> Join the Waitlist Today
+</div>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- ── POPUP ── -->
+<div class="popup-overlay" id="popup">
+  <div class="popup-box">
+    <div class="popup-icon">🎉</div>
+    <div class="popup-title">You're On The List.</div>
+    <div class="popup-body">
+      Thank you for anticipating us.<br>
+      <strong>We'd make you proud.</strong>
+      <br><br>
+      MaurPay is being built with intention — for every Nigerian who deserves better financial tools.
+    </div>
+    <button class="popup-close" onclick="closePopup()">Close</button>
+    <div class="popup-sub">MaurPay · Launching Soon · Nigeria 🇳🇬</div>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav id="navbar">
+  <div class="container">
+    <div class="nav-inner">
+      <div class="logo"><img src="maurpay-logo.png" alt="Maurpay Logo" width="100px"/></div>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#stories">Real Stories</a></li>
+        <li><a href="#cta">Waitlist</a></li>
+      </ul>
+      <div class="nav-right">
+        <button class="btn-gold" onclick="openPopup()">Join Waitlist</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-text container" style="padding-right:20px;">
+    <div class="hero-badge">
+      <div class="badge-dot"></div>
+      Coming this April · Nigeria 🇳🇬
+    </div>
+    <h1 class="hero-title">
+      The Future<br>
+      <span class="line2">of Money is</span><br>
+      <span class="highlight">Nigerian.</span>
+    </h1>
+    <p class="hero-sub">One platform to pay bills, fund dreams, and save together. MaurPay is the all-in-one fintech built from the ground up for 200 million Nigerians.</p>
+    <div class="hero-actions">
+      <button class="btn-gold" onclick="openPopup()">Join the Waitlist</button>
+      <button class="btn-outline" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">See what's coming ↓</button>
+    </div>
+    <div class="hero-scroll-hint">
+      <div class="scroll-line"></div>
+      Scroll to explore
+    </div>
+  </div>
+
+  <!-- ── DEVICE SCENE ── -->
+  <div class="hero-devices" style="position:relative;">
+
+    <!-- FLOATING PILLS -->
+    <div class="floating-pill pill-1">✅ Ajo Group payout · +₦60,000</div>
+    <div class="floating-pill pill-2">⚡ EKEDC Token purchased · ₦3,200</div>
+
+    <!-- PHONE · upper right · Data Purchase -->
+    <div class="device-phone">
+      <div class="phone-shell">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <!-- Phone UI: Data Purchase -->
+          <div class="ps-topbar">
+            <div class="ps-back"></div>
+            <div class="ps-title">Buy Data</div>
+          </div>
+          <div class="ps-body">
+            <div class="ps-label">Select Network</div>
+            <div class="ps-nets">
+              <div class="ps-net active"><span class="ps-net-icon">📡</span>MTN</div>
+              <div class="ps-net"><span class="ps-net-icon">🔴</span>Airtel</div>
+              <div class="ps-net"><span class="ps-net-icon">🟢</span>Glo</div>
+              <div class="ps-net"><span class="ps-net-icon">🟣</span>9mobile</div>
+            </div>
+            <div class="ps-label">Choose Bundle</div>
+            <div class="ps-bundle hot">
+              <div><div class="ps-bsize">5GB <span class="ps-hot-tag">HOT</span></div><div class="ps-bdetail">30 days</div></div>
+              <div class="ps-bprice">₦1,500</div>
+            </div>
+            <div class="ps-bundle">
+              <div><div class="ps-bsize">10GB</div><div class="ps-bdetail">30 days</div></div>
+              <div class="ps-bprice">₦2,700</div>
+            </div>
+            <div class="ps-bundle">
+              <div><div class="ps-bsize">1GB</div><div class="ps-bdetail">7 days</div></div>
+              <div class="ps-bprice">₦350</div>
+            </div>
+            <div class="ps-btn">BUY FROM WALLET</div>
+          </div>
+        </div>
+        <div class="phone-home"></div>
+      </div>
+    </div>
+
+    <!-- LAPTOP · main · Dashboard -->
+    <div class="device-laptop">
+      <div class="laptop-lid">
+        <div class="laptop-screen">
+          <!-- Laptop UI: Main Dashboard -->
+          <div class="ls-topbar">
+            <div class="ls-logo">Maur<span>Pay</span></div>
+            <div class="ls-nav">
+              <div class="ls-nav-dot active"></div>
+              <div class="ls-nav-dot"></div>
+              <div class="ls-nav-dot"></div>
+              <div class="ls-nav-dot"></div>
+            </div>
+            <div class="ls-avatar"></div>
+          </div>
+          <div class="ls-body">
+            <div class="ls-greeting">Good morning,</div>
+            <div class="ls-name">Chioma Obi 👋</div>
+            <div class="ls-wallet-card">
+              <div class="ls-wlabel">Wallet Balance</div>
+              <div class="ls-wbal">₦ 284,500.00 <span>↑ +₦12k this week</span></div>
+            </div>
+            <div class="ls-services">
+              <div class="ls-svc"><span class="ls-svc-i">📱</span><span class="ls-svc-l">Airtime</span></div>
+              <div class="ls-svc"><span class="ls-svc-i">📡</span><span class="ls-svc-l">Data</span></div>
+              <div class="ls-svc"><span class="ls-svc-i">⚡</span><span class="ls-svc-l">Electric</span></div>
+              <div class="ls-svc"><span class="ls-svc-i">📺</span><span class="ls-svc-l">Cable</span></div>
+            </div>
+            <div class="ls-section-title">Recent Activity</div>
+            <div class="ls-txrow">
+              <div class="ls-txi"><div class="ls-txdot">🏥</div><div><div class="ls-txname">Health Cause Donation</div><div class="ls-txtime">2 hours ago</div></div></div>
+              <div class="ls-txamt" style="color:var(--gold)">−₦5,000</div>
+            </div>
+            <div class="ls-txrow">
+              <div class="ls-txi"><div class="ls-txdot">👥</div><div><div class="ls-txname">Ajo Group #7 · Your turn!</div><div class="ls-txtime">Tomorrow</div></div></div>
+              <div class="ls-txamt" style="color:var(--teal)">+₦60,000</div>
+            </div>
+            <div class="ls-txrow">
+              <div class="ls-txi"><div class="ls-txdot">⚡</div><div><div class="ls-txname">EKEDC Electricity Token</div><div class="ls-txtime">Just now</div></div></div>
+              <div class="ls-txamt" style="color:var(--muted)">−₦3,200</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="laptop-base"></div>
+      <div class="laptop-foot"></div>
+    </div>
+
+    <!-- TABLET · lower left · Crowdfunding -->
+    <div class="device-tablet">
+      <div class="tablet-shell">
+        <div class="tablet-camera"></div>
+        <div class="tablet-screen">
+          <!-- Tablet UI: Crowdfunding -->
+          <div class="ts-topbar">
+            <div class="ts-title">Causes 💛</div>
+            <div class="ts-btn">+ New Cause</div>
+          </div>
+          <div class="ts-body">
+            <div class="ts-cats">
+              <div class="ts-cat active">All</div>
+              <div class="ts-cat">Health</div>
+              <div class="ts-cat">Education</div>
+              <div class="ts-cat">Emergency</div>
+            </div>
+            <div class="ts-card">
+              <div class="ts-card-img">🏥</div>
+              <div class="ts-card-body">
+                <div class="ts-card-title">Emeka's Surgery Fund</div>
+                <div class="ts-card-sub">Health · 12 days left</div>
+                <div class="ts-progress-bar"><div class="ts-progress-fill" style="width:72%;background:var(--teal)"></div></div>
+                <div class="ts-card-footer"><div class="ts-raised">₦720,000 raised</div><div class="ts-target">of ₦1M</div></div>
+              </div>
+            </div>
+            <div class="ts-card">
+              <div class="ts-card-img">🎓</div>
+              <div class="ts-card-body">
+                <div class="ts-card-title">Adaeze's University Fees</div>
+                <div class="ts-card-sub">Education · 5 days left</div>
+                <div class="ts-progress-bar"><div class="ts-progress-fill" style="width:45%;background:var(--gold)"></div></div>
+                <div class="ts-card-footer"><div class="ts-raised">₦225,000 raised</div><div class="ts-target">of ₦500k</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end hero-devices -->
+</section>
+
+<!-- ── MARQUEE ── -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee">
+    <div class="marquee-item">Smart Wallet <span>◆</span></div>
+    <div class="marquee-item">VTU Services <span>◆</span></div>
+    <div class="marquee-item">Crowdfunding <span>◆</span></div>
+    <div class="marquee-item">Ajo Circles <span>◆</span></div>
+    <div class="marquee-item">Paystack Powered <span>◆</span></div>
+    <div class="marquee-item">Firebase Secured <span>◆</span></div>
+    <div class="marquee-item">MTN · Airtel · Glo · 9mobile <span>◆</span></div>
+    <div class="marquee-item">DSTV · GOtv · Startimes <span>◆</span></div>
+    <div class="marquee-item">Smart Wallet <span>◆</span></div>
+    <div class="marquee-item">VTU Services <span>◆</span></div>
+    <div class="marquee-item">Crowdfunding <span>◆</span></div>
+    <div class="marquee-item">Ajo Circles <span>◆</span></div>
+    <div class="marquee-item">Paystack Powered <span>◆</span></div>
+    <div class="marquee-item">Firebase Secured <span>◆</span></div>
+    <div class="marquee-item">MTN · Airtel · Glo · 9mobile <span>◆</span></div>
+    <div class="marquee-item">DSTV · GOtv · Startimes <span>◆</span></div>
+  </div>
+</div>
+
+<!-- ── STATS ── -->
+<section id="stats">
+  <div class="container">
+    <div class="stats-label reveal">Nigeria, In Numbers</div>
+    <div class="stats-grid">
+      <div class="stat-cell reveal" style="transition-delay:0.0s">
+        <div class="stat-num"><span class="counter" data-target="200">0</span><span class="suffix">M+</span></div>
+        <div class="stat-desc">Nigerians ready for smarter financial tools</div>
+        <div class="stat-source">NPC · 2023</div>
+      </div>
+      <div class="stat-cell reveal" style="transition-delay:0.1s">
+        <div class="stat-num"><span class="suffix">$</span><span class="counter" data-target="25">0</span><span class="suffix">B+</span></div>
+        <div class="stat-desc">Nigerian fintech market addressable value</div>
+        <div class="stat-source">EFInA · 2024</div>
+      </div>
+      <div class="stat-cell reveal" style="transition-delay:0.2s">
+        <div class="stat-num"><span class="counter" data-target="35">0</span><span class="suffix">M</span></div>
+        <div class="stat-desc">Unbanked Nigerians still underserved by existing solutions</div>
+        <div class="stat-source">CBN Report · 2023</div>
+      </div>
+      <div class="stat-cell reveal" style="transition-delay:0.3s">
+        <div class="stat-num"><span class="suffix">₦</span><span class="counter" data-target="4">0</span><span class="suffix">T+</span></div>
+        <div class="stat-desc">Annual VTU & utility payment transactions in Nigeria</div>
+        <div class="stat-source">NIBSS · 2024</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="container">
+    <div class="section-eyebrow reveal">What MaurPay Does</div>
+    <div class="section-title reveal">Four pillars.<br>One platform.</div>
+    <div class="features-grid">
+      <div class="feature-card reveal" style="transition-delay:0.0s">
+        <div class="feature-icon">💳</div>
+        <div class="feature-title">Smart Wallet</div>
+        <div class="feature-desc">Fund your MaurPay wallet instantly via Paystack and use your balance across every service — bills, donations, Ajo contributions. One balance, total control.</div>
+        <div class="feature-tag">Paystack Secured</div>
+      </div>
+      <div class="feature-card reveal" style="transition-delay:0.1s">
+        <div class="feature-icon">📡</div>
+        <div class="feature-title">Bills & VTU</div>
+        <div class="feature-desc">Buy airtime and data for all networks. Pay DSTV, GOtv, Startimes. Top up electricity tokens for any DISCO in Nigeria. All in seconds, from your wallet.</div>
+        <div class="feature-tag">VTU.ng Powered</div>
+      </div>
+      <div class="feature-card reveal" style="transition-delay:0.2s">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Raise Funds</div>
+        <div class="feature-desc">Create a cause — health, education, emergency, religion, community. Share your link. Watch your community rally. Transparent tracking. Real impact.</div>
+        <div class="feature-tag">Crowdfunding</div>
+      </div>
+      <div class="feature-card reveal" style="transition-delay:0.3s">
+        <div class="feature-icon">👥</div>
+        <div class="feature-title">Ajo Circles</div>
+        <div class="feature-desc">The trusted Nigerian Ajo / Esusu tradition, reimagined. Create a save group, invite members by phone number, set your cycle, and rotate withdrawals — automated and transparent.</div>
+        <div class="feature-tag">Save Groups</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── REAL STORIES ── -->
+<section id="stories">
+  <div class="container">
+    <div class="section-eyebrow reveal">Built For Real Life</div>
+    <div class="section-title reveal">Every Nigerian<br>has a MaurPay story.</div>
+    <div class="stories-grid">
+
+      <div class="story-card reveal" style="transition-delay:0.0s">
+        <div class="story-avatar">👩🏾‍💼</div>
+        <div class="story-name">Chioma, 29 — Lagos</div>
+        <div class="story-role">Small business owner</div>
+        <div class="story-quote">"I started an Ajo circle with six of my market women. Every week someone gets the full pot — no drama, no chasing anybody. MaurPay does all the tracking."</div>
+        <div class="story-feature">💡 Ajo Circles</div>
+      </div>
+
+      <div class="story-card reveal" style="transition-delay:0.1s">
+        <div class="story-avatar">👨🏿‍🎓</div>
+        <div class="story-name">Emeka, 22 — Enugu</div>
+        <div class="story-role">Final year student</div>
+        <div class="story-quote">"My classmates contributed to help me pay my final semester fees. I set up a cause in two minutes, shared the link in our WhatsApp group, and we hit the target in three days."</div>
+        <div class="story-feature">💡 Crowdfunding</div>
+      </div>
+
+      <div class="story-card reveal" style="transition-delay:0.2s">
+        <div class="story-avatar">👩🏽‍⚕️</div>
+        <div class="story-name">Fatima, 34 — Abuja</div>
+        <div class="story-role">Nurse, mother of two</div>
+        <div class="story-quote">"I pay DSTV, buy data for my kids, and top up EKEDC — all from one wallet. No more switching between apps. No more bank transfer wahala."</div>
+        <div class="story-feature">💡 Bills & VTU</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── VISION QUOTE ── -->
+<section id="vision">
+  <div class="container">
+    <div class="vision-divider"></div>
+    <div class="vision-quote reveal">"Every time a Nigerian sends ₦500 airtime to their mum, starts an Ajo with their girls, or donates to a friend's hospital bill — <span class="em">that's the real Nigerian economy.</span> MaurPay just gives it a home."</div>
+    <div class="vision-author reveal">— Maurice Prosper, Founder · MaurPay</div>
+    <div class="vision-divider"></div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section id="cta">
+  <div class="cta-glow"></div>
+  <div class="container">
+    <div class="cta-eyebrow reveal">Coming This April 🇳🇬</div>
+    <div class="cta-title reveal">Your money.<br>Your rules.</div>
+    <div class="cta-sub reveal">MaurPay launches in April. Be first — join the waitlist and we'll let you know the moment the doors open.</div>
+    <div class="waitlist-form reveal">
+      <input class="waitlist-input" type="email" placeholder="Enter your email address" id="emailInput">
+      <button class="waitlist-btn" onclick="handleWaitlist()">Notify Me</button>
+    </div>
+    <div class="trust-line reveal" style="opacity:0;transform:translateY(20px);transition:all 0.6s 0.4s">No spam. No noise. Just the launch day email.</div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-copy">© 2025 MaurPay · Saleford Digital Agency · Nigeria 🇳🇬</div>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#" onclick="openPopup();return false;">Waitlist</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); }
+animateRing();
+document.querySelectorAll('a, button, input').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.width = '20px'; cursor.style.height = '20px'; ring.style.opacity = '0.5'; });
+  el.addEventListener('mouseleave', () => { cursor.style.width = '12px'; cursor.style.height = '12px'; ring.style.opacity = '1'; });
+});
+
+// ── NAVBAR SCROLL ──
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ── CANVAS BACKGROUND ──
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.r = Math.random() * 1.2 + 0.3;
+    this.vx = (Math.random() - 0.5) * 0.3;
+    this.vy = (Math.random() - 0.5) * 0.3;
+    this.alpha = Math.random() * 0.4 + 0.05;
+    this.gold = Math.random() > 0.7;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fillStyle = this.gold ? `rgba(232,184,75,${this.alpha})` : `rgba(255,255,255,${this.alpha * 0.5})`;
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+// Orbs
+const orbs = [
+  { x: 0.15, y: 0.2, r: 300, color: 'rgba(232,184,75,0.04)' },
+  { x: 0.85, y: 0.7, r: 350, color: 'rgba(0,201,167,0.035)' },
+  { x: 0.5, y: 0.5, r: 250, color: 'rgba(232,184,75,0.025)' },
+];
+
+function drawFrame() {
+  ctx.clearRect(0, 0, W, H);
+  orbs.forEach(o => {
+    const grd = ctx.createRadialGradient(o.x*W, o.y*H, 0, o.x*W, o.y*H, o.r);
+    grd.addColorStop(0, o.color);
+    grd.addColorStop(1, 'transparent');
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(o.x*W, o.y*H, o.r, 0, Math.PI*2);
+    ctx.fill();
+  });
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(drawFrame);
+}
+drawFrame();
+
+// ── SCROLL REVEAL ──
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.15 });
+revealEls.forEach(el => observer.observe(el));
+
+// ── COUNTER ANIMATION ──
+function animateCounters() {
+  document.querySelectorAll('.counter').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    let current = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = Math.floor(current);
+      if (current >= target) clearInterval(timer);
+    }, 20);
+  });
+}
+const statsSection = document.getElementById('stats');
+const statsObserver = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) { animateCounters(); statsObserver.disconnect(); }
+}, { threshold: 0.3 });
+statsObserver.observe(statsSection);
+
+// ── POPUP ──
+function openPopup() {
+  document.getElementById('popup').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closePopup() {
+  document.getElementById('popup').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.getElementById('popup').addEventListener('click', function(e) {
+  if (e.target === this) closePopup();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
+
+function handleWaitlist() {
+  const email = document.getElementById('emailInput').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('emailInput').style.outline = '1px solid rgba(232,100,100,0.5)';
+    setTimeout(() => document.getElementById('emailInput').style.outline = '', 1500);
+    return;
+  }
+  openPopup();
+  document.getElementById('emailInput').value = '';
+}
+
+// ── PARALLAX HERO VISUAL ──
+window.addEventListener('scroll', () => {
+  const visual = document.querySelector('.hero-visual');
+  if (visual) visual.style.transform = `translateY(calc(-50% + ${window.scrollY * 0.12}px))`;
+});
+</script>
+</body>
+</html>
